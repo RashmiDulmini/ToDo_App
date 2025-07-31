@@ -1,58 +1,75 @@
-📱 To-Do List Mobile App
-The To-Do List Mobile App is a productivity-focused mobile application developed using Flutter for the frontend and Node.js + PostgreSQL for the backend. It allows users to manage their daily tasks effectively by organizing them into lists, marking priorities, and tracking their completion status.
+# 📱 To-Do List Mobile App
 
-✅ Key Features
-Task Creation
-Users can create new tasks with a title and priority (High, Medium, Low). Tasks are grouped under custom-named lists.
+A clean and intuitive mobile To-Do list app built with **Flutter**, powered by a **Node.js + Express.js** backend and **PostgreSQL** database. This app allows users to create custom task lists, mark tasks as important, filter by priority, and manage them efficiently from their mobile device.
 
-Mark Important Tasks
-A star icon lets users highlight important tasks. These are easily accessible on a dedicated Starred screen.
+---
 
-Filter & View Tasks
-The app provides a My Tasks screen to display all tasks. Tasks can be filtered by list and priority.
+## ✨ Features
 
-List Management
-Users can:
+### ✅ Task Management
+- Add tasks with **title** and **priority** (High, Medium, Low)
+- Mark tasks as **important (starred)**
+- Mark tasks as **completed**
+- Delete completed or unnecessary tasks
 
-Add new custom lists.
+### 📂 List Management
+- Create **custom task lists**
+- Rename or delete lists via the `...` menu
+- Delete all completed tasks in a list
 
-Rename existing lists.
+### ⭐ Starred Tasks
+- View all starred (important) tasks on a separate screen
+- Quickly identify high-priority tasks
 
-Delete individual lists.
+### 🖼️ Mobile-Friendly UI
+- Designed using **Material Design** with:
+  - Large touch-friendly buttons
+  - Clear visual hierarchy
+  - Color-coded priorities
+- Supports Android and iOS
 
-Delete all completed tasks in a list.
+---
 
-Edit/Delete Tasks
-Tasks can be:
+## 🏗️ Tech Stack
 
-Renamed.
+| Layer       | Technology       |
+|-------------|------------------|
+| Frontend    | Flutter, Dart     |
+| Backend     | Node.js, Express.js |
+| Database    | PostgreSQL        |
+| Networking  | `http` package in Flutter |
+| DevOps Tools| Docker for backend packaging |
 
-Marked as completed (and then hidden or removed).
+---
 
-Deleted when no longer needed.
+## 🚀 Getting Started
 
-Mobile-Friendly Design
+### 📦 Prerequisites
+- Flutter SDK installed: [Install Flutter](https://flutter.dev/docs/get-started/install)
+- Node.js installed: [Install Node.js](https://nodejs.org/)
+- PostgreSQL installed: [Install PostgreSQL](https://www.postgresql.org/download/)
+- Android/iOS Emulator or a physical device
 
-Clean UI with Material Design.
+---
 
-Easy touch interactions with large icons and text.
+### 💻 Backend Setup
 
-Color-coded priorities and intuitive layout.
+```bash
+# 1. Clone the backend repo
+cd todo-backend
+npm install
 
-💾 Backend Integration
-Powered by a Node.js + Express.js server.
+# 2. Create a PostgreSQL database
+CREATE DATABASE todo_app;
 
-Connected to a PostgreSQL database to persist task and list data.
+# 3. Create tasks table
+CREATE TABLE tasks (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  priority TEXT NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  list_name TEXT NOT NULL
+);
 
-RESTful API handles:
-
-GET, POST, PUT, and DELETE for tasks and lists.
-
-🛠 Tech Stack
-Frontend: Flutter, Dart
-
-Backend: Node.js, Express.js
-
-Database: PostgreSQL
-
-DevOps Tools: Docker (for backend packaging)
+# 4. Start the backend server
+node index.js
