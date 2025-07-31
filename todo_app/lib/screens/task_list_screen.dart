@@ -24,7 +24,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   Future<void> _loadTasks() async {
     setState(() => _isLoading = true);
-    final tasks = await ApiService.getTasks();
+    final tasks = await ApiService.fetchTasks();
     setState(() {
       _tasks = tasks;
       _isLoading = false;
@@ -89,7 +89,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         leading: Checkbox(
                           value: task.completed,
                           onChanged: (value) async {
-                            task.completed = value ?? false;
+                            setState(() {
+                              task.completed = value ?? false;
+                            });
                             await ApiService.updateTask(task);
                             _loadTasks();
                           },
@@ -121,7 +123,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => EditTaskScreen(task: task),
+                              builder: (_) => EditTaskScreen(task),
                             ),
                           );
                           _loadTasks();

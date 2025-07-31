@@ -1,29 +1,113 @@
 import 'package:flutter/material.dart';
-import 'package:device_preview/device_preview.dart';
-import 'package:todo_app/screens/home_screen.dart';
-//import 'screens/task_list_screen.dart';
+import 'package:todo_app/screens/add_task_screen.dart';
+import 'package:todo_app/screens/edit_task_screen.dart';
+import 'package:todo_app/services/api_service.dart';
+import '../models/task.dart';
 
 void main() {
-  runApp(
-    DevicePreview(
-      enabled: true,
-      builder: (context) => const MyApp(),
-    ),
-  );
+  runApp(const MaterialApp(home: TaskListScreen()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class TaskListScreen extends StatefulWidget {
+  const TaskListScreen({super.key});
+
+  @override
+  State<TaskListScreen> createState() => _TaskListScreenState();
+}
+
+class _TaskListScreenState extends State<TaskListScreen> {
+  List<Task> tasks = [];
+  String? selectedPriority;
+
+  @override
+  void initState() {
+    super.initState();
+    loadTasks();
+  }
+
+  Future<void> loadTasks() async {
+    final loadedTasks = await ApiService.fetchTasks();
+    setState(() {
+      tasks = loadedTasks;
+    });
+  }
+
+  void filter(String? priority) {
+    setState(() {
+      selectedPriority = priority;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'To-Do List',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomeScreen(),   //TaskListScreen
-      useInheritedMediaQuery: true,
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
+    final filtered = selectedPriority == null
+        ? tasks
+        : tasks.where((t) => t.priority == selectedPriority).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('To-Do List'),
+        actions: [
+          DropdownButton<String>(
+            hint: const Text("Priority", style: TextStyle(color: Colors.white)),
+            value: selectedPriority,
+            items: ['high', 'medium', 'low']
+                .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                .toList(),
+            onChanged: filter,
+            dropdownColor: Colors.white,
+          ),
+        ],
+      ),
+      body: ListView(
+        children: filtered.map((task) {
+          return ListTile(
+            title: Text(
+              task.title,
+              style: TextStyle(
+                  decoration:
+                      task.completed ? TextDecoration.lineThrough : null),
+            ),
+            subtitle: Text(task.priority),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Checkbox(
+                  value: task.completed,
+                  onChanged: (val) async {
+                    final updated = Task(
+                        id: task.id,
+                        title: task.title,
+                        priority: task.priority,
+                        completed: val ?? false);
+                    await ApiService.updateTask(updated);
+                    loadTasks();
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () async {
+                    await ApiService.deleteTask(task.id);
+                    loadTasks();
+                  },
+                ),
+              ],
+            ),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => EditTaskScreen(task)));
+            },
+          );
+        }).toList(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          await Navigator.push(
+              context, MaterialPageRoute(builder: (_) => const AddTaskScreen()));
+          loadTasks();
+        },
+      ),
     );
   }
 }
