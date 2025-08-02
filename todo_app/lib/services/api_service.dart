@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import '../models/task.dart';
 
 class ApiService {
-  // If using Android emulator, use 10.0.2.2 for localhost
   static const String baseUrl = 'http://10.0.2.2:3000/api/tasks';
 
   // Fetch tasks
@@ -17,15 +16,12 @@ class ApiService {
     }
   }
 
-  // Create task
-  static Future<Task> createTask(String title, String priority) async {
+  // Add task
+  static Future<Task> addTask(Task task) async {
     final response = await http.post(
       Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'title': title,
-        'priority': priority,
-      }),
+      body: jsonEncode(task.toJson()),
     );
 
     if (response.statusCode == 201) {

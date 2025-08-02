@@ -1,11 +1,33 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:todo_app/screens/add_task_screen.dart';
 import 'package:todo_app/screens/edit_task_screen.dart';
+import 'package:todo_app/screens/getstarted_screen.dart';
 import 'package:todo_app/services/api_service.dart';
 import '../models/task.dart';
 
 void main() {
-  runApp(const MaterialApp(home: TaskListScreen()));
+  runApp(
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => const MyApp(), // Your app
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      useInheritedMediaQuery: true,
+      builder: DevicePreview.appBuilder,
+      debugShowCheckedModeBanner: false,
+      home: const GetStartedScreen(),
+    );
+  }
 }
 
 class TaskListScreen extends StatefulWidget {
@@ -65,8 +87,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
             title: Text(
               task.title,
               style: TextStyle(
-                  decoration:
-                      task.completed ? TextDecoration.lineThrough : null),
+                decoration:
+                    task.completed ? TextDecoration.lineThrough : null,
+              ),
             ),
             subtitle: Text(task.priority),
             trailing: Row(
@@ -76,10 +99,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   value: task.completed,
                   onChanged: (val) async {
                     final updated = Task(
-                        id: task.id,
-                        title: task.title,
-                        priority: task.priority,
-                        completed: val ?? false);
+                      id: task.id,
+                      title: task.title,
+                      priority: task.priority,
+                      completed: val ?? false,
+                    );
                     await ApiService.updateTask(updated);
                     loadTasks();
                   },
@@ -94,8 +118,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
               ],
             ),
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => EditTaskScreen(task)));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => EditTaskScreen(task)),
+              );
             },
           );
         }).toList(),
@@ -104,7 +130,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
         child: const Icon(Icons.add),
         onPressed: () async {
           await Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const AddTaskScreen()));
+            context,
+            MaterialPageRoute(builder: (_) => const AddTaskScreen()),
+          );
           loadTasks();
         },
       ),
