@@ -33,16 +33,40 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
     setState(() => _isSaving = true);
 
     try {
-      widget.task.assignedUser = username;
-      await ApiService.updateTask(widget.task); // Reuse updateTask API
-      Navigator.pop(context); // Go back to TaskListScreen
+      await ApiService.assignTaskToUser(widget.task.id, username);
+      _showDialog('Success', 'User assigned successfully!', true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to assign user: $e')),
-      );
+      _showDialog('Error', 'An error occurred: $e', false);
     } finally {
       setState(() => _isSaving = false);
     }
+  }
+
+  void _showDialog(String title, String message, bool isSuccess) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              if (isSuccess) {
+                Navigator.of(context).pop(); // Go back to previous screen
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _userController.dispose();
+    super.dispose();
   }
 
   @override
@@ -66,12 +90,20 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               icon: _isSaving
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
                   : const Icon(Icons.save),
-              label: const Text('Assign User'),
+              label: Text(_isSaving ? 'Assigning...' : 'Assign User'),
               onPressed: _isSaving ? null : _assignUser,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[800],
+                backgroundColor: Colors.blue[100],
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],

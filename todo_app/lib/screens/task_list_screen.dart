@@ -5,6 +5,8 @@ import '../services/api_service.dart';
 import 'add_task_screen.dart';
 import 'edit_task_screen.dart';
 import 'getstarted_screen.dart';
+import 'new_user_screen.dart';
+import 'add_people_screen.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({Key? key}) : super(key: key);
@@ -53,9 +55,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   List<Task> get _filteredTasks {
     if (_selectedPriority == 'All') return _tasks;
-    return _tasks
-        .where((task) => task.priority.toLowerCase() == _selectedPriority.toLowerCase())
-        .toList();
+    return _tasks.where((task) => task.priority.toLowerCase() == _selectedPriority.toLowerCase()).toList();
   }
 
   bool _isToday(String? date) {
@@ -76,7 +76,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
     try {
       DateTime dueDate = DateTime.parse(date);
       if (time != null && time.isNotEmpty) {
-        final parsedTime = DateFormat.jm().parse(time); // Example: 5:30 PM
+        final parsedTime = DateFormat.jm().parse(time);
         dueDate = DateTime(
           dueDate.year,
           dueDate.month,
@@ -112,7 +112,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('My To-Do List', style: TextStyle(color: Colors.blue[900])),
         backgroundColor: Colors.blue[100],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -123,7 +122,20 @@ class _TaskListScreenState extends State<TaskListScreen> {
             );
           },
         ),
+        title: Text(
+          'My To-Do List',
+          style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold),
+        ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person_add, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NewUserScreen()),
+              );
+            },
+          ),
           DropdownButton<String>(
             value: _selectedPriority,
             underline: const SizedBox(),
@@ -217,84 +229,103 @@ class _TaskListScreenState extends State<TaskListScreen> {
           )
         ],
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        leading: Checkbox(
-          value: task.completed,
-          onChanged: (value) async {
-            setState(() => task.completed = value ?? false);
-            await ApiService.updateTask(task);
-            _loadTasks();
-          },
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Checkbox(
+              value: task.completed,
+              onChanged: (value) async {
+                setState(() => task.completed = value ?? false);
+                await ApiService.updateTask(task);
+                _loadTasks();
+              },
+            ),
+            const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                task.title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  decoration: task.completed ? TextDecoration.lineThrough : null,
+              child: GestureDetector(
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditTaskScreen(task),
+                    ),
+                  );
+                  _loadTasks();
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            task.title,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              decoration: task.completed ? TextDecoration.lineThrough : null,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          timeRemaining,
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    if ((task.notes ?? '').isNotEmpty)
+                      _buildRow(Icons.notes, task.notes!),
+                    if ((task.date ?? '').isNotEmpty)
+                      _buildRow(
+                        Icons.calendar_today,
+                        DateFormat.yMMMd().format(DateTime.parse(task.date!)),
+                        color: isToday ? Colors.red : Colors.black,
+                      ),
+                    if ((task.time ?? '').isNotEmpty)
+                      _buildRow(Icons.access_time, task.time!),
+                    _buildRow(
+                      Icons.alarm,
+                      (task.alarm ?? false) ? 'Alarm On' : 'Alarm Off',
+                      color: (task.alarm ?? false) ? Colors.deepPurple : Colors.grey.shade600,
+                    ),
+                    _buildRow(
+                      Icons.flag,
+                      task.priority.toUpperCase(),
+                      color: task.priority.toLowerCase() == 'high'
+                          ? Colors.red
+                          : task.priority.toLowerCase() == 'medium'
+                              ? Colors.orange
+                              : Colors.green,
+                    ),
+                  ],
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
             ),
-            if ((task.date ?? '').isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Text(
-                  timeRemaining,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: timeRemaining == 'Overdue' ? Colors.red : Colors.blue,
-                  ),
+            Column(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.add_circle, color: Colors.blue),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddPeopleScreen(task: task),
+                      ),
+                    );
+                  },
                 ),
-              ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _deleteTask(task.id),
+                ),
+              ],
+            ),
           ],
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if ((task.notes ?? '').isNotEmpty)
-              _buildRow(Icons.notes, task.notes!),
-            if ((task.date ?? '').isNotEmpty)
-              _buildRow(
-                Icons.calendar_today,
-                DateFormat.yMMMd().format(DateTime.parse(task.date!)),
-                color: isToday ? Colors.red : Colors.black,
-              ),
-            if ((task.time ?? '').isNotEmpty)
-              _buildRow(Icons.access_time, task.time!),
-            _buildRow(
-              Icons.alarm,
-              (task.alarm ?? false) ? 'Alarm On' : 'Alarm Off',
-              color: (task.alarm ?? false) ? Colors.deepPurple : Colors.grey.shade600,
-            ),
-            _buildRow(
-              Icons.flag,
-              task.priority.toUpperCase(),
-              color: task.priority == 'high'
-                  ? Colors.red
-                  : task.priority == 'medium'
-                      ? Colors.orange
-                      : Colors.green,
-            ),
-          ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
-          onPressed: () => _deleteTask(task.id),
-        ),
-        onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => EditTaskScreen(task)),
-          );
-          _loadTasks();
-        },
       ),
     );
   }

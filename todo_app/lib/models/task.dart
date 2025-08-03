@@ -7,6 +7,7 @@ class Task {
   String? date;
   String? time;
   bool? alarm;
+  String? assignedUser;
 
   Task({
     required this.id,
@@ -17,6 +18,7 @@ class Task {
     this.date,
     this.time,
     this.alarm,
+    this.assignedUser,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Task {
       date: json['date'],
       time: json['time'],
       alarm: json['alarm'],
+      assignedUser: json['assigned_user'],
     );
   }
 
@@ -42,6 +45,7 @@ class Task {
       'date': date,
       'time': time,
       'alarm': alarm,
+      'assigned_user': assignedUser, 
     };
   }
 }

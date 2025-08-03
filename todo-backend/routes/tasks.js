@@ -1,40 +1,68 @@
-const express = require('express');
-const router = express.Router();
-const pool = require('../db');
+// index.js (Backend)
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
 
-// GET all tasks
-router.get('/', async (req, res) => {
+const app = express();
+const port = 3000;
+
+app.use(cors());
+app.use(express.json());
+
+// PostgreSQL connection
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'todo_app',
+  password: '1234',
+  port: 5432,
+});
+
+// --- Routes ---
+
+// Get all tasks
+app.get("/api/tasks", async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM tasks ORDER BY id ASC');
-    res.json(result.rows);
+    const result = await pool.query("SELECT * FROM tasks ORDER BY id ASC");
+    res.status(200).json(result.rows);
   } catch (err) {
-    console.error('GET /tasks error:', err.message);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("GET error:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// POST new task
-router.post('/', async (req, res) => {
-  const { title, priority, completed = false, notes, date, time, alarm = false } = req.body;
-
+// Add a new task
+app.post("/api/tasks", async (req, res) => {
+  const { title, priority, completed = false, notes, date, time, alarm = false, assignedUser = null } = req.body;
   try {
     const result = await pool.query(
-      `INSERT INTO tasks (title, priority, completed, notes, date, time, alarm)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING *`,
-      [title, priority, completed, notes, date, time, alarm]
+      `INSERT INTO tasks (title, priority, completed, notes, date, time, alarm, assigned_user)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [title, priority, completed, notes, date, time, alarm, assignedUser]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error('POST /tasks error:', err.message);
-    res.status(500).json({ error: 'Failed to create task' });
+    console.error("POST error:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// PUT update task
-router.put('/:id', async (req, res) => {
+// Delete task
+app.delete("/api/tasks/:id", async (req, res) => {
   const { id } = req.params;
-  const { title, priority, completed, notes, date, time, alarm } = req.body;
+  try {
+    await pool.query("DELETE FROM tasks WHERE id = $1", [id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error("DELETE error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update task (general)
+app.put("/api/tasks/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, priority, completed, notes, date, time, alarm, assignedUser } = req.body;
 
   try {
     await pool.query(
@@ -45,26 +73,42 @@ router.put('/:id', async (req, res) => {
            notes = $4,
            date = $5,
            time = $6,
-           alarm = $7
-       WHERE id = $8`,
-      [title, priority, completed, notes, date, time, alarm, id]
+           alarm = $7,
+           assigned_user = $8
+       WHERE id = $9`,
+      [title, priority, completed, notes, date, time, alarm, assignedUser, id]
     );
-    res.json({ message: 'Task updated' });
+    res.status(200).json({ message: "Task updated" });
   } catch (err) {
-    console.error('PUT /tasks/:id error:', err.message);
-    res.status(500).json({ error: 'Failed to update task' });
+    console.error("PUT error:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// DELETE task
-router.delete('/:id', async (req, res) => {
+// Assign user to task (assign-user route)
+app.put("/api/tasks/:id/assign-user", async (req, res) => {
+  const { id } = req.params;
+  const { username } = req.body;
+
   try {
-    await pool.query('DELETE FROM tasks WHERE id = $1', [req.params.id]);
-    res.json({ message: 'Task deleted' });
+    await pool.query(
+      `UPDATE tasks
+       SET assigned_user = $1
+       WHERE id = $2`,
+      [username, id]
+    );
+    res.status(200).json({ message: "User assigned successfully" });
   } catch (err) {
-    console.error('DELETE /tasks/:id error:', err.message);
-    res.status(500).json({ error: 'Failed to delete task' });
+    console.error("Assign User PUT error:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router;
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+
+/* Make sure your DB has this column:
+ALTER TABLE tasks ADD COLUMN assigned_user VARCHAR;
+*/

@@ -4,6 +4,7 @@ import 'package:device_preview/device_preview.dart';
 import 'package:todo_app/screens/add_task_screen.dart';
 import 'package:todo_app/screens/edit_task_screen.dart';
 import 'package:todo_app/screens/getstarted_screen.dart';
+import 'package:todo_app/screens/add_people_screen.dart';  
 import 'package:todo_app/services/api_service.dart';
 import '../models/task.dart';
 
@@ -11,7 +12,7 @@ void main() {
   runApp(
     DevicePreview(
       enabled: !kReleaseMode,
-      builder: (context) => const MyApp(), // Your app
+      builder: (context) => const MyApp(),
     ),
   );
 }
@@ -91,7 +92,14 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     task.completed ? TextDecoration.lineThrough : null,
               ),
             ),
-            subtitle: Text(task.priority),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Priority: ${task.priority}"),
+                if (task.assignedUser != null && task.assignedUser!.isNotEmpty)
+                  Text("Assigned to: ${task.assignedUser!}"),
+              ],
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -103,9 +111,25 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       title: task.title,
                       priority: task.priority,
                       completed: val ?? false,
+                      notes: task.notes,
+                      date: task.date,
+                      time: task.time,
+                      alarm: task.alarm,
+                      assignedUser: task.assignedUser,
                     );
                     await ApiService.updateTask(updated);
                     loadTasks();
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.person_add),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => AddPeopleScreen(task: task)),
+                    );
+                    loadTasks();  // Reload tasks after assignment
                   },
                 ),
                 IconButton(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/screens/task_list_screen.dart'; // Update the path if needed
+import 'package:todo_app/screens/task_list_screen.dart'; 
 
 class GetStartedScreen extends StatelessWidget {
   const GetStartedScreen({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class GetStartedScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               Image.asset(
-                'assets/started.png', // Make sure this image exists in your assets folder
+                'assets/started.png', 
                 height: 250,
               ),
               const SizedBox(height: 40),
