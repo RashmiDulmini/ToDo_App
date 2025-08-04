@@ -39,7 +39,7 @@ class _NewUserDashboardState extends State<NewUserDashboard> {
   void _startCountdownTimer() {
     _countdownTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       setState(() {
-        // Just trigger UI refresh every 30 seconds
+        
       });
     });
   }
@@ -209,7 +209,7 @@ class _NewUserDashboardState extends State<NewUserDashboard> {
             color: Colors.blueAccent.withOpacity(0.5),
             spreadRadius: 1,
             blurRadius: 8,
-            offset: const Offset(0, 4), // X, Y offset of shadow
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -234,7 +234,30 @@ class _NewUserDashboardState extends State<NewUserDashboard> {
           children: [
             Text('Priority: ${task.priority}'),
             if (task.notes != null && task.notes!.isNotEmpty)
-              Text('Notes: ${task.notes}'),
+              Container(
+                margin: const EdgeInsets.only(top: 4, bottom: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.yellow.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.star, size: 18, color: Colors.amber),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        task.notes!,
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             if (formattedDate.isNotEmpty || (task.time != null && task.time!.isNotEmpty))
               Text('Due: $formattedDate ${task.time != null ? "at ${task.time}" : ""}'),
             if (remainingTime.isNotEmpty)
@@ -248,6 +271,3 @@ class _NewUserDashboardState extends State<NewUserDashboard> {
     );
   }
 }
-
-
-

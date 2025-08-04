@@ -16,7 +16,7 @@ class TaskListScreen extends StatefulWidget {
 }
 
 class _TaskListScreenState extends State<TaskListScreen> {
-  List<Task> _tasks = [];
+  List<Task> _tasks = [];    // List to store all fetched tasks
   String _selectedPriority = 'All';
   bool _isLoading = true;
 
@@ -278,7 +278,29 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     ),
                     const SizedBox(height: 4),
                     if ((task.notes ?? '').isNotEmpty)
-                      _buildRow(Icons.notes, task.notes!),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.yellow.shade100, 
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.star, size: 16, color: Colors.amber),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  task.notes!,
+                                  style: const TextStyle(color: Colors.black87),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     if ((task.date ?? '').isNotEmpty)
                       _buildRow(
                         Icons.calendar_today,

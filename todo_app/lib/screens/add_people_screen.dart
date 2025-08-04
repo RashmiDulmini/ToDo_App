@@ -52,9 +52,9 @@ class _AddPeopleScreenState extends State<AddPeopleScreen> {
           TextButton(
             child: const Text('OK'),
             onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pop(); 
               if (isSuccess) {
-                Navigator.of(context).pop(); // Go back to previous screen
+                Navigator.of(context).pop(); 
               }
             },
           ),
