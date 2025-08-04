@@ -1,6 +1,6 @@
 # 📱 To-Do List Mobile App
 
-A clean and intuitive mobile To-Do list app built with **Flutter**, powered by a **Node.js + Express.js** backend and **PostgreSQL** database. This app allows users to create custom task lists, mark tasks as important, filter by priority, and manage them efficiently from their mobile device.
+A clean and intuitive mobile To-Do list app built with **Flutter**, powered by a **Node.js + Express.js** backend and **PostgreSQL** database. This app allows users to create custom task lists, filter by priority, and manage them efficiently from their mobile device.
 
 ---
 
@@ -8,7 +8,6 @@ A clean and intuitive mobile To-Do list app built with **Flutter**, powered by a
 
 ### ✅ Task Management
 - Add tasks with **title** and **priority** (High, Medium, Low)
-- Mark tasks as **important (starred)**
 - Mark tasks as **completed**
 - Delete completed or unnecessary tasks
 
@@ -17,9 +16,6 @@ A clean and intuitive mobile To-Do list app built with **Flutter**, powered by a
 - Rename or delete lists via the `...` menu
 - Delete all completed tasks in a list
 
-### ⭐ Starred Tasks
-- View all starred (important) tasks on a separate screen
-- Quickly identify high-priority tasks
 
 ### 🖼️ Mobile-Friendly UI
 - Designed using **Material Design** with:
@@ -38,7 +34,6 @@ A clean and intuitive mobile To-Do list app built with **Flutter**, powered by a
 | Backend     | Node.js, Express.js |
 | Database    | PostgreSQL        |
 | Networking  | `http` package in Flutter |
-| DevOps Tools| Docker for backend packaging |
 
 ---
 
@@ -68,7 +63,8 @@ CREATE TABLE tasks (
   title TEXT NOT NULL,
   priority TEXT NOT NULL,
   completed BOOLEAN DEFAULT FALSE,
-  list_name TEXT NOT NULL
+  list_name TEXT NOT NULL,
+  assigned_user TEXT 
 );
 
 # 4. Start the backend server
