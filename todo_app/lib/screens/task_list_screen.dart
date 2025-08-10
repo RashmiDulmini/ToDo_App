@@ -16,7 +16,7 @@ class TaskListScreen extends StatefulWidget {
 }
 
 class _TaskListScreenState extends State<TaskListScreen> {
-  List<Task> _tasks = [];    // List to store all fetched tasks
+  List<Task> _tasks = [];
   String _selectedPriority = 'All';
   bool _isLoading = true;
 
@@ -55,7 +55,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   List<Task> get _filteredTasks {
     if (_selectedPriority == 'All') return _tasks;
-    return _tasks.where((task) => task.priority.toLowerCase() == _selectedPriority.toLowerCase()).toList();
+    return _tasks
+        .where((task) =>
+            task.priority.toLowerCase() == _selectedPriority.toLowerCase())
+        .toList();
   }
 
   bool _isToday(String? date) {
@@ -107,8 +110,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final incompleteTasks = _filteredTasks.where((task) => !task.completed).toList();
-    final completedTasks = _filteredTasks.where((task) => task.completed).toList();
+    final incompleteTasks =
+        _filteredTasks.where((task) => !task.completed).toList();
+    final completedTasks =
+        _filteredTasks.where((task) => task.completed).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -124,7 +129,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
         ),
         title: Text(
           'My To-Do List',
-          style: TextStyle(color: Colors.blue[900], fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.blue[900], fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -151,6 +157,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 setState(() => _selectedPriority = value);
               }
             },
+          ),
+          // 🔄 Refresh button
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.black),
+            onPressed: _loadTasks,
           ),
           const SizedBox(width: 12),
         ],
@@ -265,14 +276,17 @@ class _TaskListScreenState extends State<TaskListScreen> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              decoration: task.completed ? TextDecoration.lineThrough : null,
+                              decoration: task.completed
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Text(
                           timeRemaining,
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -282,19 +296,22 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         padding: const EdgeInsets.only(top: 4),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.yellow.shade100, 
+                            color: Colors.yellow.shade100,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 6),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.star, size: 16, color: Colors.amber),
+                              const Icon(Icons.star,
+                                  size: 16, color: Colors.amber),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
                                   task.notes!,
-                                  style: const TextStyle(color: Colors.black87),
+                                  style: const TextStyle(
+                                      color: Colors.black87),
                                 ),
                               ),
                             ],
@@ -304,7 +321,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     if ((task.date ?? '').isNotEmpty)
                       _buildRow(
                         Icons.calendar_today,
-                        DateFormat.yMMMd().format(DateTime.parse(task.date!)),
+                        DateFormat.yMMMd()
+                            .format(DateTime.parse(task.date!)),
                         color: isToday ? Colors.red : Colors.black,
                       ),
                     if ((task.time ?? '').isNotEmpty)
@@ -312,7 +330,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     _buildRow(
                       Icons.alarm,
                       (task.alarm ?? false) ? 'Alarm On' : 'Alarm Off',
-                      color: (task.alarm ?? false) ? Colors.deepPurple : Colors.grey.shade600,
+                      color: (task.alarm ?? false)
+                          ? Colors.deepPurple
+                          : Colors.grey.shade600,
                     ),
                     _buildRow(
                       Icons.flag,

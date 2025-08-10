@@ -18,7 +18,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   late String _priority;
   late bool _completed;
   late bool _alarm;
-
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
 
